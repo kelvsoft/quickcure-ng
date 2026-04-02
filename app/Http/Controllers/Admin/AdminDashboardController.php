@@ -15,17 +15,39 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Storage;
 
 class AdminDashboardController extends Controller
 {
+    public function viewDocument(Request $request, string $path): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        // SECURITY: Only admin can access this route
+        // Decode the path and verify it stays within beauty-registrations folder
+        $decodedPath = base64_decode($path);
+
+        if (!str_starts_with($decodedPath, 'beauty-registrations/')) {
+            abort(403);
+        }
+
+        if (!Storage::disk('local')->exists($decodedPath)) {
+            abort(404);
+        }
+
+        return Storage::disk('local')->response($decodedPath);
+    }
     public function index(): Response
     {
         $hospitals = Hospital::with(['services' => fn($q) => $q->select([
-            'id','hospital_id','service_name','status','category','price'
+            'id',
+            'hospital_id',
+            'service_name',
+            'status',
+            'category',
+            'price'
         ])])
-        ->select(['id','name','slug','address','phone','whatsapp_number','is_verified','tier','lat','lng'])
-        ->orderBy('is_verified')->orderBy('name')
-        ->get();
+            ->select(['id', 'name', 'slug', 'address', 'phone', 'whatsapp_number', 'is_verified', 'tier', 'lat', 'lng'])
+            ->orderBy('is_verified')->orderBy('name')
+            ->get();
 
         $stats = Cache::remember('admin_stats', now()->addMinutes(2), function () {
             return [
@@ -39,20 +61,20 @@ class AdminDashboardController extends Controller
         });
 
         $alerts = OutbreakAlert::active()
-            ->select(['id','title','message','severity','state'])
+            ->select(['id', 'title', 'message', 'severity', 'state'])
             ->orderByRaw("FIELD(severity,'critical','warning','info')")
             ->get();
 
         // Pending emergency registrations — fast queue
         $pendingEmergency = HospitalRegistration::pending()
-            ->select(['id','hospital_name','state','whatsapp_number','email','mdcn_license','selected_services','created_at'])
+            ->select(['id', 'hospital_name', 'state', 'whatsapp_number', 'email', 'mdcn_license', 'selected_services', 'created_at'])
             ->orderBy('created_at')
             ->get();
 
         // Pending beauty registrations — strict queue
         $pendingBeauty = BeautyRegistration::where('status', 'pending')
             ->orWhere('status', 'under_review')
-            ->select(['id','clinic_name','surgeon_name','state','whatsapp_number','surgeon_mdcn','lsmoh_license','status','portfolio_photos','clinic_photo_path','mdcn_cert_photo_path','selected_services','years_experience','procedures_performed','created_at'])
+            ->select(['id', 'clinic_name', 'surgeon_name', 'state', 'whatsapp_number', 'surgeon_mdcn', 'lsmoh_license', 'status', 'portfolio_photos', 'clinic_photo_path', 'mdcn_cert_photo_path', 'selected_services', 'years_experience', 'procedures_performed', 'created_at'])
             ->orderBy('created_at')
             ->get();
 
@@ -110,7 +132,7 @@ class AdminDashboardController extends Controller
                         'category'     => $svcInfo['category'],
                         'status'       => 'none', // Default to none — hospital updates to available
                         'is_verified'  => true,
-                        'current_stock'=> 0,
+                        'current_stock' => 0,
                     ]);
                 }
 
@@ -125,7 +147,6 @@ class AdminDashboardController extends Controller
             });
 
             return back()->with('success', "Hospital approved and created successfully.");
-
         } catch (\Exception $e) {
             Log::error("APPROVE_EMERGENCY_FAILURE: " . $e->getMessage());
             return back()->with('error', 'Approval failed. Please try again.');
@@ -167,7 +188,7 @@ class AdminDashboardController extends Controller
                         'category'     => $svcInfo['category'],
                         'status'       => 'available', // Beauty clinics default to available
                         'is_verified'  => true,
-                        'current_stock'=> 1,
+                        'current_stock' => 1,
                     ]);
                 }
 
@@ -181,7 +202,6 @@ class AdminDashboardController extends Controller
             });
 
             return back()->with('success', "Beauty clinic approved successfully.");
-
         } catch (\Exception $e) {
             Log::error("APPROVE_BEAUTY_FAILURE: " . $e->getMessage());
             return back()->with('error', 'Approval failed. Please try again.');

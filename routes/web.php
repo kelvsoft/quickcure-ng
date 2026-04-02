@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // ============================================================
+// AUTH ROUTES - MUST BE FIRST
+// ============================================================
+require __DIR__ . '/auth.php';
+
+// ============================================================
 // PUBLIC
 // ============================================================
 Route::get('/', fn() => Inertia::render('Emergency/Search'))->name('home');
@@ -44,6 +49,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::patch('/registrations/beauty/{registration}/approve',      [AdminDashboardController::class, 'approveBeauty'])->name('registrations.beauty.approve');
     Route::patch('/registrations/beauty/{registration}/reject',       [AdminDashboardController::class, 'rejectBeauty'])->name('registrations.beauty.reject');
     Route::patch('/registrations/beauty/{registration}/under-review', [AdminDashboardController::class, 'markBeautyUnderReview'])->name('registrations.beauty.review');
+
+    Route::get('/documents/{path}', [AdminDashboardController::class, 'viewDocument'])
+    ->name('admin.documents.view')
+    ->where('path', '.*');
 });
 
 // ============================================================
@@ -55,4 +64,3 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__ . '/auth.php';

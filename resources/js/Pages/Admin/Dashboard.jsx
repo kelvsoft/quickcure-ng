@@ -246,17 +246,49 @@ export default function Dashboard({
                                         )}
                                     </div>
 
+                                    <div className="mb-4 flex flex-wrap gap-2">
+                                        {r.clinic_photo_path && (
+                                            <a href={`/admin/documents/${btoa(r.clinic_photo_path)}`}
+                                                target="_blank" rel="noopener noreferrer"
+                                                className="flex items-center gap-1.5 rounded-lg border border-amber-800/40 bg-amber-950/20 px-3 py-1.5 text-xs font-semibold text-amber-400 transition hover:bg-amber-950/40">
+                                                🏥 View Clinic Photo
+                                            </a>
+                                        )}
+                                        {r.mdcn_cert_photo_path && (
+                                            <a href={`/admin/documents/${btoa(r.mdcn_cert_photo_path)}`}
+                                                target="_blank" rel="noopener noreferrer"
+                                                className="flex items-center gap-1.5 rounded-lg border border-amber-800/40 bg-amber-950/20 px-3 py-1.5 text-xs font-semibold text-amber-400 transition hover:bg-amber-950/40">
+                                                📋 View MDCN Certificate
+                                            </a>
+                                        )}
+                                        {r.lsmoh_cert_photo_path && (
+                                            <a href={`/admin/documents/${btoa(r.lsmoh_cert_photo_path)}`}
+                                                target="_blank" rel="noopener noreferrer"
+                                                className="flex items-center gap-1.5 rounded-lg border border-amber-800/40 bg-amber-950/20 px-3 py-1.5 text-xs font-semibold text-amber-400 transition hover:bg-amber-950/40">
+                                                📋 View LSMOH Certificate
+                                            </a>
+                                        )}
+                                    </div>
+
                                     {/* Portfolio preview */}
                                     {r.portfolio_photos?.length > 0 && (
                                         <div className="mb-4">
                                             <p className="text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-2">Portfolio ({r.portfolio_photos.length} photos)</p>
                                             <div className="flex gap-2">
                                                 {r.portfolio_photos.slice(0,4).map((p,i)=>(
-                                                    <div key={i} className="h-14 w-14 rounded-lg bg-amber-950/40 flex items-center justify-center text-xs text-amber-800">📸</div>
+                                                    <a key={i} href={`/admin/documents/${btoa(p)}`} target="_blank" rel="noopener noreferrer"
+                                                        className="h-14 w-14 rounded-lg bg-amber-950/40 flex items-center justify-center text-xs text-amber-800 hover:ring-2 hover:ring-amber-500 transition overflow-hidden">
+                                                        <img src={`/admin/documents/${btoa(p)}`} alt={`Portfolio ${i+1}`}
+                                                            className="h-full w-full object-cover"
+                                                            onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }}
+                                                        />
+                                                        <span className="hidden h-full w-full items-center justify-center">📸</span>
+                                                    </a>
                                                 ))}
                                             </div>
                                             <p className="text-[10px] text-amber-900 mt-1">⚠️ Reverse image search every photo before approving</p>
                                         </div>
+                                        
                                     )}
 
                                     <div className="flex gap-2">
