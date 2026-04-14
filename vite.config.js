@@ -26,8 +26,8 @@ export default defineConfig({
     ],
     server: {
         hmr: {
-            host: 'quickcure-ng.test', // Force Vite to use your domain
+            host: 'sabihealth.test', // Force Vite to use your domain
         },
-        host: 'quickcure-ng.test',
+        host: 'sabihealth.test',
     },
 });

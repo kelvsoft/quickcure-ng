@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { Head } from '@inertiajs/react';
 
+//FEATURE FLAG FOR BEAUTY CLINIC REGISTRATION
+const FEATURE_FLAGS = {
+    BEAUTY_ENABLED: false, // Set to false to hide beauty clinic registration link
+};
+
 const NIGERIAN_STATES = [
     'Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue',
     'Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu',
@@ -102,13 +107,13 @@ export default function Register({ services = [] }) {
         `w-full rounded-xl border ${fieldErrors[field]?'border-red-700 bg-red-950/10':'border-slate-700 bg-slate-800'} px-3 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/30 transition`;
 
     const Steps = () => (
-        <div className="mb-8 flex items-center gap-2">
+        <div className="flex items-center gap-2 mb-8">
             {['Hospital Info','Contact & License','Services'].map((label, i) => (
-                <div key={i} className="flex flex-1 items-center gap-2">
+                <div key={i} className="flex items-center flex-1 gap-2">
                     <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all ${step > i+1 ? 'bg-emerald-600 text-white' : step === i+1 ? 'bg-red-600 text-white ring-4 ring-red-600/20' : 'bg-slate-800 text-slate-500'}`}>
                         {step > i+1 ? '✓' : i+1}
                     </div>
-                    <div className="hidden min-w-0 flex-1 sm:block">
+                    <div className="flex-1 hidden min-w-0 sm:block">
                         <p className={`truncate text-[10px] font-semibold ${step === i+1 ? 'text-white' : 'text-slate-600'}`}>{label}</p>
                     </div>
                     {i < 2 && <div className={`h-0.5 w-4 flex-shrink-0 rounded sm:hidden ${step > i+1 ? 'bg-emerald-600':'bg-slate-800'}`} />}
@@ -119,7 +124,7 @@ export default function Register({ services = [] }) {
 
     if (apiStep === 'submitting') return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-[#080c10] gap-4">
-            <span className="h-10 w-10 animate-spin rounded-full border-2 border-slate-700 border-t-red-500" />
+            <span className="w-10 h-10 border-2 rounded-full animate-spin border-slate-700 border-t-red-500" />
             <p className="font-['Syne',sans-serif] text-lg font-bold text-white">Submitting your registration...</p>
         </div>
     );
@@ -128,12 +133,12 @@ export default function Register({ services = [] }) {
         <>
             <Head><title>Registration Submitted — QuickCure NG</title></Head>
             <div className="flex min-h-screen flex-col items-center justify-center bg-[#080c10] px-4 text-center font-['DM_Sans',sans-serif]">
-                <span className="text-6xl mb-5">✅</span>
+                <span className="mb-5 text-6xl">✅</span>
                 <h1 className="font-['Syne',sans-serif] text-2xl font-extrabold text-white mb-3">Registration Submitted!</h1>
-                <p className="max-w-md text-sm leading-relaxed text-slate-400 mb-6">
+                <p className="max-w-md mb-6 text-sm leading-relaxed text-slate-400">
                     We will verify your MDCN license on <strong className="text-white">mdcn.gov.ng</strong> and contact you on WhatsApp at <strong className="text-white">{form.whatsapp_number}</strong> within <strong className="text-white">48 hours</strong>.
                 </p>
-                <div className="mb-8 rounded-xl border border-slate-700 bg-slate-800/40 p-5 text-left text-sm text-slate-400 max-w-md w-full">
+                <div className="w-full max-w-md p-5 mb-8 text-sm text-left border rounded-xl border-slate-700 bg-slate-800/40 text-slate-400">
                     <p className="mb-3 font-bold text-white">What happens next:</p>
                     <div className="flex flex-col gap-2">
                         {['We check your MDCN license number on mdcn.gov.ng','We verify your address on Google Maps','You get a WhatsApp confirmation within 48 hours','Once approved, you receive your update link via WhatsApp','Patients can find your hospital on Sabi Hospital'].map((t,i)=>(
@@ -164,19 +169,22 @@ export default function Register({ services = [] }) {
 
             <div className="min-h-screen bg-[#080c10] font-['DM_Sans',sans-serif] text-white">
                 <header className="border-b border-slate-800 bg-[#0d1520] px-4 py-4">
-                    <div className="mx-auto flex max-w-2xl items-center justify-between">
+                    <div className="flex items-center justify-between max-w-2xl mx-auto">
                         <a href="/" className="flex items-center gap-2">
                             <span className="text-xl text-red-500">✚</span>
                             <span className="font-['Syne',sans-serif] text-lg font-extrabold">Sabi Hospital</span>
                             <span className="rounded bg-red-900/40 px-1.5 py-0.5 text-[10px] font-bold text-red-400 ring-1 ring-red-800/60">NG</span>
                         </a>
-                        <a href="/register-clinic" className="text-xs text-amber-500 hover:text-amber-400">
-                            Register a beauty clinic instead →
-                        </a>
+                        {/* ONLY SHOW BEAUTY REGISTRATION LINK WHEN FEATURE IS ENABLED */}
+                        {FEATURE_FLAGS.BEAUTY_ENABLED && (
+                            <a href="/register-clinic" className="text-xs text-amber-500 hover:text-amber-400">
+                                Register a Beauty Clinic instead →
+                            </a>
+                        )}
                     </div>
                 </header>
 
-                <div className="mx-auto max-w-2xl px-4 py-10">
+                <div className="max-w-2xl px-4 py-10 mx-auto">
                     <div className="mb-10 text-center">
                         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-red-800/40 bg-red-950/20 px-3 py-1.5">
                             <span className="text-sm">🚨</span>
@@ -185,12 +193,12 @@ export default function Register({ services = [] }) {
                         <h1 className="font-['Syne',sans-serif] text-3xl font-extrabold sm:text-4xl">
                             Register Your Hospital
                         </h1>
-                        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-400">
+                        <p className="max-w-md mx-auto mt-3 text-sm leading-relaxed text-slate-400">
                             Join Sabi Hospital and let Nigerians find your emergency services in real-time. Verification takes 24-48 hours. MDCN facility license required.
                         </p>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+                    <div className="p-6 border rounded-2xl border-slate-800 bg-slate-900/60">
                         <Steps />
 
                         {/* STEP 1 — Hospital Info */}
@@ -237,7 +245,7 @@ export default function Register({ services = [] }) {
                             <div className="flex flex-col gap-4">
                                 <h2 className="font-['Syne',sans-serif] text-xl font-bold mb-2">Contact & Verification</h2>
 
-                                <div className="rounded-xl border border-amber-800/40 bg-amber-950/20 p-4">
+                                <div className="p-4 border rounded-xl border-amber-800/40 bg-amber-950/20">
                                     <p className="text-xs leading-relaxed text-amber-300">
                                         📱 <strong>Your WhatsApp number is your identity on Sabi Hospital.</strong> When you want to update your stock, you send "update" to our WhatsApp bot and a secure one-time link is sent back to this number. Make sure it is active.
                                     </p>
@@ -297,7 +305,7 @@ export default function Register({ services = [] }) {
                                 <div className="flex flex-col gap-6">
                                     {Object.entries(grouped).map(([cat, svcs]) => (
                                         <div key={cat}>
-                                            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+                                            <p className="mb-2 text-xs font-bold tracking-wider uppercase text-slate-500">
                                                 {CATEGORY_LABELS[cat] ?? cat}
                                             </p>
                                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -308,7 +316,7 @@ export default function Register({ services = [] }) {
                                                             className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-all ${selected ? 'border-red-600 bg-red-950/20' : 'border-slate-700 bg-slate-800/40 hover:border-slate-600'}`}>
                                                             <input type="checkbox" checked={selected}
                                                                 onChange={()=>toggle(svc.id)}
-                                                                className="accent-red-500 h-4 w-4 flex-shrink-0" />
+                                                                className="flex-shrink-0 w-4 h-4 accent-red-500" />
                                                             <span className="text-sm text-white">{svc.name}</span>
                                                         </label>
                                                     );
@@ -319,7 +327,7 @@ export default function Register({ services = [] }) {
                                 </div>
 
                                 {form.selected_services.length > 0 && (
-                                    <div className="mt-5 rounded-xl border border-emerald-800/40 bg-emerald-950/20 px-4 py-3">
+                                    <div className="px-4 py-3 mt-5 border rounded-xl border-emerald-800/40 bg-emerald-950/20">
                                         <p className="text-xs text-emerald-400">
                                             ✓ <strong>{form.selected_services.length} service{form.selected_services.length !== 1 ? 's' : ''}</strong> selected
                                         </p>
@@ -333,7 +341,7 @@ export default function Register({ services = [] }) {
                             <div>
                                 <h2 className="font-['Syne',sans-serif] text-xl font-bold mb-5">Review & Submit</h2>
 
-                                <div className="mb-5 rounded-xl border border-slate-700 bg-slate-800/40 p-4 flex flex-col gap-2">
+                                <div className="flex flex-col gap-2 p-4 mb-5 border rounded-xl border-slate-700 bg-slate-800/40">
                                     {[
                                         ['Hospital', form.hospital_name],
                                         ['State', form.state],
@@ -348,7 +356,7 @@ export default function Register({ services = [] }) {
                                     ))}
                                 </div>
 
-                                <label className="mb-5 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+                                <label className="flex items-start gap-3 p-4 mb-5 border cursor-pointer rounded-xl border-slate-700 bg-slate-800/40">
                                     <input type="checkbox" checked={form.consent} onChange={e=>set('consent',e.target.checked)} className="mt-0.5 accent-red-500" />
                                     <p className="text-xs leading-relaxed text-slate-400">
                                         I confirm all information is accurate. I understand that providing a false MDCN license number will result in permanent removal and may be reported to relevant authorities. I agree to QuickCure NG's <a href="/legal" className="underline" target="_blank" rel="noopener noreferrer">terms of service</a>.
@@ -362,7 +370,7 @@ export default function Register({ services = [] }) {
                         {/* Navigation buttons */}
                         <div className={`mt-6 flex gap-3 ${step === 1 ? 'justify-end' : 'justify-between'}`}>
                             {step > 1 && (
-                                <button onClick={()=>setStep(s=>s-1)} className="flex-1 rounded-xl bg-slate-800 py-3 text-sm font-semibold text-slate-300 transition hover:bg-slate-700">
+                                <button onClick={()=>setStep(s=>s-1)} className="flex-1 py-3 text-sm font-semibold transition rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700">
                                     ← Back
                                 </button>
                             )}

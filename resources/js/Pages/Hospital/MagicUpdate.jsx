@@ -44,21 +44,21 @@ export default function MagicUpdate() {
             </Head>
 
             <div className="flex min-h-screen flex-col items-center justify-center bg-[#080c10] px-4 font-['DM_Sans',sans-serif] text-white">
-                <div className="mb-8 flex items-center gap-2">
-                    <span className="animate-pulse text-2xl text-red-500">✚</span>
+                <div className="flex items-center gap-2 mb-8">
+                    <span className="text-2xl text-red-500 animate-pulse">✚</span>
                     <span className="font-['Syne',sans-serif] text-xl font-extrabold">QuickCure NG</span>
                 </div>
 
                 {step === 'loading' && (
                     <div className="flex flex-col items-center gap-3">
-                        <span className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-red-500" />
+                        <span className="w-8 h-8 border-2 rounded-full animate-spin border-slate-700 border-t-red-500" />
                         <p className="text-slate-500">Loading...</p>
                     </div>
                 )}
 
                 {step === 'ready' && (
                     <div className="w-full max-w-sm">
-                        <div className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-5 text-center">
+                        <div className="p-5 mb-8 text-center border rounded-2xl border-slate-800 bg-slate-900/60">
                             <p className="text-sm text-slate-500">Tap one button to update your service status</p>
                             <p className="mt-2 text-xs text-slate-600">This link works only once and expires in 48 hours.</p>
                         </div>
@@ -73,13 +73,13 @@ export default function MagicUpdate() {
                                 </button>
                             ))}
                         </div>
-                        <p className="mt-6 text-center text-xs text-slate-700">This link was sent securely to your hospital. Do not share it.</p>
+                        <p className="mt-6 text-xs text-center text-slate-700">This link was sent securely to your hospital. Do not share it.</p>
                     </div>
                 )}
 
                 {step === 'updating' && (
                     <div className="flex flex-col items-center gap-4">
-                        <span className="h-10 w-10 animate-spin rounded-full border-2 border-slate-700 border-t-emerald-400" />
+                        <span className="w-10 h-10 border-2 rounded-full animate-spin border-slate-700 border-t-emerald-400" />
                         <p className="font-['Syne',sans-serif] text-lg font-bold text-white">Updating...</p>
                     </div>
                 )}
@@ -106,7 +106,7 @@ export default function MagicUpdate() {
                         <span className="text-5xl">⚠️</span>
                         <p className="font-['Syne',sans-serif] text-xl font-bold text-red-400">Update Failed</p>
                         <p className="max-w-xs text-sm text-slate-400">Something went wrong. Please try again or contact support.</p>
-                        <button onClick={() => setStep('ready')} className="mt-2 rounded-xl bg-slate-800 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-700">Try Again</button>
+                        <button onClick={() => setStep('ready')} className="px-6 py-3 mt-2 text-sm font-semibold text-white transition rounded-xl bg-slate-800 hover:bg-slate-700">Try Again</button>
                     </div>
                 )}
             </div>

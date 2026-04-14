@@ -7,11 +7,16 @@ import OutbreakTicker from "@/Components/Emergency/OutbreakTicker";
 import FeedbackModal from "@/Components/Emergency/FeedbackModal";
 import LeadCaptureModal from "@/Components/Aesthetics/LeadCaptureModal";
 
+const FEATURE_FLAGS = {
+    BEAUTY_ENABLED: false, // Toggle this to true when ready
+};
+
 const EMERGENCY_RADII = [15, 30, 50, 100];
 const AESTHETICS_RADII = [10, 25, 50];
 
 export default function Search() {
     const [query, setQuery] = useState("");
+    // Force track to emergency only when beauty is disabled
     const [track, setTrack] = useState("emergency");
     const [hospitals, setHospitals] = useState([]);
     const [status, setStatus] = useState("idle");
@@ -172,6 +177,10 @@ export default function Search() {
     }, [query, fetchHospitals]);
 
     const switchTrack = (t) => {
+        // Prevent switching to aesthetics if feature is disabled
+        if (!FEATURE_FLAGS.BEAUTY_ENABLED && t === "aesthetics") {
+            return;
+        }
         setTrack(t);
         setQuery("");
         setHospitals([]);
@@ -230,24 +239,17 @@ export default function Search() {
     return (
         <>
             <Head>
-                <title>{`QuickCure NG — ${isEmergency ? "Emergency Medical Care" : "Premium Aesthetic Surgery"} Nigeria`}</title>
+                {/* Always show emergency title when beauty is disabled */}
+                <title>{`QuickCure NG — Emergency Medical Care Nigeria`}</title>
 
                 {/* Primary Meta Tags */}
                 <meta
                     name="description"
-                    content={
-                        isEmergency
-                            ? "Find emergency hospitals, blood banks, ICU beds, and medical services near you in Nigeria. Real-time availability. Free and fast."
-                            : "Find LSMOH-verified aesthetic surgeons for BBL, hair transplant, rhinoplasty, and more in Nigeria. Free consultations."
-                    }
+                    content="Find emergency hospitals, blood banks, ICU beds, and medical services near you in Nigeria. Real-time availability. Free and fast."
                 />
                 <meta
                     name="keywords"
-                    content={
-                        isEmergency
-                            ? "emergency hospital Nigeria, blood bank Lagos, ICU bed Abuja, snake bite treatment, oxygen supply"
-                            : "BBL surgery Nigeria, hair transplant Lagos, rhinoplasty Abuja, dental veneers, botox Nigeria"
-                    }
+                    content="emergency hospital Nigeria, blood bank Lagos, ICU bed Abuja, snake bite treatment, oxygen supply"
                 />
                 <meta name="robots" content="index, follow" />
                 <meta name="author" content="QuickCure NG" />
@@ -257,15 +259,11 @@ export default function Search() {
                 <meta property="og:locale" content="en_NG" />
                 <meta
                     property="og:title"
-                    content={`QuickCure NG — ${isEmergency ? "Emergency Care" : "Beauty & Aesthetics"} Nigeria`}
+                    content="QuickCure NG — Emergency Care Nigeria"
                 />
                 <meta
                     property="og:description"
-                    content={
-                        isEmergency
-                            ? "Find emergency medical help near you in Nigeria. Real-time availability."
-                            : "Find verified aesthetic surgeons in Nigeria. Free consultations."
-                    }
+                    content="Find emergency medical help near you in Nigeria. Real-time availability."
                 />
                 <meta property="og:url" content="https://quickcure-ng.com" />
                 <meta property="og:site_name" content="QuickCure NG" />
@@ -282,15 +280,11 @@ export default function Search() {
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta
                     name="twitter:title"
-                    content={`QuickCure NG — ${isEmergency ? "Emergency" : "Beauty"} Care`}
+                    content="QuickCure NG — Emergency Care"
                 />
                 <meta
                     name="twitter:description"
-                    content={
-                        isEmergency
-                            ? "Find emergency hospitals and clinics near you"
-                            : "Find verified aesthetic surgeons in Nigeria"
-                    }
+                    content="Find emergency hospitals and clinics near you"
                 />
                 <meta
                     name="twitter:image"
@@ -300,15 +294,7 @@ export default function Search() {
                 {/* Theme & Appearance */}
                 <meta
                     name="theme-color"
-                    content={
-                        isEmergency
-                            ? isDark
-                                ? "#0f172a"
-                                : "#f8fafc"
-                            : isDark
-                              ? "#451a03"
-                              : "#fef3c7"
-                    }
+                    content={isDark ? "#0f172a" : "#f8fafc"}
                 />
                 <meta name="color-scheme" content={isDark ? "dark" : "light"} />
 
@@ -344,9 +330,7 @@ export default function Search() {
                         "@type": "WebApplication",
                         name: "QuickCure NG",
                         alternateName: "Sabi Hospital",
-                        description: isEmergency
-                            ? "Find emergency hospitals, blood banks, ICU beds near you in Nigeria. Real-time availability."
-                            : "Find verified aesthetic surgeons, BBL, hair transplant in Nigeria. Free consultations.",
+                        description: "Find emergency hospitals, blood banks, ICU beds near you in Nigeria. Real-time availability.",
                         url: "https://quickcure-ng.com",
                         applicationCategory: "HealthApplication",
                         operatingSystem: "Any",
@@ -377,103 +361,82 @@ export default function Search() {
             >
                 {/* Offline banner */}
                 {isOffline && (
-                    <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500/10 backdrop-blur-md border-b border-amber-500/20 px-4 py-2 text-center text-xs">
+                    <div className="fixed top-0 left-0 right-0 z-50 px-4 py-2 text-xs text-center border-b bg-amber-500/10 backdrop-blur-md border-amber-500/20">
                         📵 Offline — showing cached results
                     </div>
                 )}
-
+                
                 {/* Outbreak ticker */}
-                {isEmergency && <OutbreakTicker alerts={alerts} />}
+                <OutbreakTicker alerts={alerts} />
 
                 {/* Hero */}
-                <div className="relative min-h-[90vh] flex items-center justify-center px-4">
+                <div className="relative items-center justify-center min-h-screen px-4 py-20">
                     <div className="absolute inset-0 overflow-hidden">
                         <div
-                            className={`absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl opacity-20 animate-pulse ${isEmergency ? "bg-red-500" : "bg-amber-500"}`}
+                            className={`absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl opacity-20 animate-pulse bg-red-500`}
                         />
                         <div
-                            className={`absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl opacity-20 animate-pulse delay-1000 ${isEmergency ? "bg-blue-500" : "bg-yellow-500"}`}
+                            className={`absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl opacity-20 animate-pulse delay-1000 bg-blue-500`}
                         />
                     </div>
 
-                    <div className="relative max-w-3xl w-full text-center space-y-8">
+                    <div className="relative items-center w-full max-w-4xl mx-auto space-y-8 text-center md:px-20">
                         {/* Logo */}
                         <div
-                            className="flex justify-center items-center gap-3 group cursor-pointer"
+                            className="flex items-center justify-center gap-3 cursor-pointer group"
                             onClick={() =>
                                 window.scrollTo({ top: 0, behavior: "smooth" })
                             }
                         >
                             <div
-                                className={`w-10 h-10 rounded-2xl flex items-center justify-center text-2xl transition-transform group-hover:scale-110 ${isEmergency ? "bg-red-500/20" : "bg-amber-500/20"}`}
+                                className={`w-10 h-10 rounded-2xl flex items-center justify-center text-2xl transition-transform group-hover:scale-110 bg-red-500/20`}
                             >
                                 ✚
                             </div>
                             <span className="text-2xl font-black tracking-tight">
-                                {isEmergency
-                                    ? "Sabi Hospital"
-                                    : "QuickCure Beauty"}
+                                Sabi Hospital
                             </span>
                         </div>
 
-                        {/* Track toggle */}
-                        <div className="flex justify-center gap-2 p-1 rounded-full backdrop-blur-sm bg-white/5 border border-white/10">
+                        {/* Track toggle - Beauty button hidden when disabled */}
+                        <div className="flex justify-center gap-2 p-3 border rounded-full md:p-1 backdrop-blur-sm bg-white/5 border-white/10">
                             <button
                                 onClick={() => switchTrack("emergency")}
-                                className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
-                                    isEmergency
-                                        ? "bg-red-500 text-white shadow-lg scale-105"
-                                        : `${theme.muted} hover:bg-white/10`
-                                }`}
+                                className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 bg-red-500 text-white shadow-lg scale-105`}
                             >
                                 🚨 Emergency
                             </button>
-                            <button
-                                onClick={() => switchTrack("aesthetics")}
-                                className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
-                                    !isEmergency
-                                        ? "bg-amber-500 text-white shadow-lg scale-105"
-                                        : `${theme.muted} hover:bg-white/10`
-                                }`}
-                            >
-                                ✨ Beauty
-                            </button>
+                            
+                            {/* Only show Beauty button if feature is enabled */}
+                            {FEATURE_FLAGS.BEAUTY_ENABLED && (
+                                <button
+                                    onClick={() => switchTrack("aesthetics")}
+                                    className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${theme.muted} hover:bg-white/10`}
+                                >
+                                    ✨ Beauty
+                                </button>
+                            )}
                         </div>
 
-                        {/* Headline */}
+                        {/* Headline - Always emergency */}
                         <div className="space-y-4">
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
-                                {isEmergency ? (
-                                    <>
-                                        Need{" "}
-                                        <span className="text-red-500">
-                                            medical help
-                                        </span>{" "}
-                                        now?
-                                    </>
-                                ) : (
-                                    <>
-                                        Find{" "}
-                                        <span className="text-amber-500">
-                                            verified surgeons
-                                        </span>
-                                    </>
-                                )}
+                            <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+                                Need{" "}
+                                <span className="text-red-500">
+                                    medical help
+                                </span>{" "}
+                                now?
                             </h1>
-                            <p
-                                className={`text-base max-w-md mx-auto ${theme.muted}`}
-                            >
-                                {isEmergency
-                                    ? 'Type anything — "snak bit", "oxigen" — we understand. Auto-expands search until help is found.'
-                                    : "LSMOH-verified surgeons. Real results. Free consultations."}
+                            <p className={`text-base max-w-md mx-auto ${theme.muted}`}>
+                                Type anything — "snak bit", "oxigen" — we understand. Auto-expands search until help is found.
                             </p>
                         </div>
 
                         {/* Search */}
                         <div className="space-y-4">
                             <div className="relative group">
-                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-xl">
-                                    {isEmergency ? "🔍" : "✨"}
+                                <span className="absolute text-xl -translate-y-1/2 left-5 top-1/2">
+                                    🔍
                                 </span>
                                 <input
                                     ref={inputRef}
@@ -485,12 +448,8 @@ export default function Search() {
                                     onKeyDown={(e) =>
                                         e.key === "Enter" && handleSearch()
                                     }
-                                    placeholder={
-                                        isEmergency
-                                            ? "e.g., snake bite, blood, ICU..."
-                                            : "e.g., BBL, hair transplant..."
-                                    }
-                                    className={`w-full rounded-2xl border-0 py-4 pl-14 pr-5 text-lg outline-none backdrop-blur-sm transition-all focus:ring-2 focus:scale-[1.02] ${theme.surface} ${theme.border} focus:ring-${isEmergency ? "red" : "amber"}-500/50`}
+                                    placeholder="e.g., snake bite, blood, ICU..."
+                                    className={`w-full rounded-2xl border-0 py-4 pl-14 pr-5 text-lg outline-none backdrop-blur-sm transition-all focus:ring-2 focus:scale-[1.02] ${theme.surface} ${theme.border} focus:ring-red-500/50`}
                                 />
                             </div>
 
@@ -504,7 +463,7 @@ export default function Search() {
                                         }}
                                         className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all hover:scale-105 ${
                                             query === s.value
-                                                ? `${isEmergency ? "bg-red-500" : "bg-amber-500"} text-white`
+                                                ? "bg-red-500 text-white"
                                                 : `${theme.surface} ${theme.muted} hover:bg-white/10`
                                         }`}
                                     >
@@ -514,8 +473,8 @@ export default function Search() {
                             </div>
                         </div>
 
-                        {/* Radius picker */}
-                        {!isEmergency && (
+                        {/* Radius picker - Hidden when beauty disabled */}
+                        {!isEmergency && FEATURE_FLAGS.BEAUTY_ENABLED && (
                             <div className="flex justify-center gap-2">
                                 {AESTHETICS_RADII.map((r) => (
                                     <button
@@ -537,26 +496,20 @@ export default function Search() {
                         <button
                             onClick={handleSearch}
                             disabled={isActive}
-                            className={`relative w-full max-w-sm mx-auto overflow-hidden rounded-full py-4 font-bold text-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 ${
-                                isEmergency
-                                    ? "bg-red-500 text-white"
-                                    : "bg-amber-500 text-black"
-                            }`}
+                            className={`relative w-full max-w-sm mx-auto overflow-hidden rounded-full py-4 font-bold text-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 bg-red-500 text-white`}
                         >
                             <span className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
                             {isActive ? (
                                 <div className="flex items-center justify-center gap-2">
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <div className="w-5 h-5 border-2 rounded-full border-white/30 border-t-white animate-spin" />
                                     <span>
                                         {status === "locating"
                                             ? "Getting location..."
                                             : "Searching..."}
                                     </span>
                                 </div>
-                            ) : isEmergency ? (
-                                "🚨 Find Emergency Help"
                             ) : (
-                                "✨ Find Verified Clinics"
+                                "🚨 Find Emergency Help"
                             )}
                         </button>
 
@@ -564,75 +517,52 @@ export default function Search() {
                             🔒 Location never stored · Free · Real-time
                         </p>
                     </div>
-                </div>
+                    
+                    {/* Results */}
+                    <div className="max-w-6xl px-4 py-12 mx-auto">
+                        <SearchStatus
+                            status={status}
+                            errorMsg={errorMsg}
+                            count={hospitals.length}
+                            radius={searchedRadius}
+                            query={query}
+                            track={track}
+                            onRetry={handleSearch}
+                        />
 
-                {/* Results */}
-                <div className="max-w-6xl mx-auto px-4 py-12">
-                    <SearchStatus
-                        status={status}
-                        errorMsg={errorMsg}
-                        count={hospitals.length}
-                        radius={searchedRadius}
-                        query={query}
-                        track={track}
-                        onRetry={handleSearch}
-                    />
-
-                    {hospitals.length > 0 && (
-                        <>
-                            <p
-                                className={`text-center text-sm mb-6 ${theme.muted}`}
-                            >
-                                Found{" "}
-                                <strong
-                                    className={
-                                        isEmergency
-                                            ? "text-red-400"
-                                            : "text-amber-400"
-                                    }
-                                >
-                                    {hospitals.length}
-                                </strong>{" "}
-                                {isEmergency ? "hospital" : "clinic"}
-                                {hospitals.length !== 1 && "s"} with "
-                                <strong>{query}"</strong>
-                                {searchedRadius && (
-                                    <span> within {searchedRadius}km</span>
-                                )}
-                            </p>
-                            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                                {hospitals.map((h) =>
-                                    isEmergency ? (
+                        {hospitals.length > 0 && (
+                            <>
+                                <p className={`text-center text-sm mb-6 ${theme.muted}`}>
+                                    Found{" "}
+                                    <strong className="text-red-400">
+                                        {hospitals.length}
+                                    </strong>{" "}
+                                    hospital{hospitals.length !== 1 && "s"} with "
+                                    <strong>{query}"</strong>
+                                    {searchedRadius && (
+                                        <span> within {searchedRadius}km</span>
+                                    )}
+                                </p>
+                                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                                    {hospitals.map((h) => (
                                         <HospitalCard
                                             key={h.id}
                                             hospital={h}
-                                            onFeedback={() =>
-                                                setFeedbackTarget(h)
-                                            }
+                                            onFeedback={() => setFeedbackTarget(h)}
                                         />
-                                    ) : (
-                                        <AestheticsCard
-                                            key={h.id}
-                                            hospital={h}
-                                            onLead={() => setLeadTarget(h)}
-                                        />
-                                    ),
-                                )}
-                            </div>
-                        </>
-                    )}
-                </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
 
-                {/* Emergency hotlines */}
-                {isEmergency && (
-                    <div className="border-t py-12">
-                        <div className="max-w-2xl mx-auto px-4">
-                            <h2
-                                className={`text-center text-xs font-bold uppercase tracking-wider mb-6 ${theme.muted}`}
-                            >
+                    {/* Emergency hotlines */}
+                    <div className="border-none">
+                        <div className="max-w-3xl px-4 mx-auto">
+                            <h2 className={`text-center text-xs font-bold uppercase tracking-wider mb-6 ${theme.muted}`}>
                                 Emergency Numbers
                             </h2>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                                 {[
                                     {
                                         name: "NEMA",
@@ -663,9 +593,7 @@ export default function Search() {
                                         <div className="text-sm font-semibold">
                                             {h.name}
                                         </div>
-                                        <div
-                                            className={`text-sm font-bold mt-1 ${isEmergency ? "text-red-400" : "text-amber-400"}`}
-                                        >
+                                        <div className="mt-1 text-sm font-bold text-red-400">
                                             {h.display}
                                         </div>
                                     </a>
@@ -673,18 +601,18 @@ export default function Search() {
                             </div>
                         </div>
                     </div>
-                )}
 
-                {/* Footer */}
-                <footer className="border-t py-6 text-center text-xs opacity-50">
-                    <p>
-                        © {new Date().getFullYear()} QuickCure NG ·{" "}
-                        <a href="/legal" className="underline">
-                            Legal
-                        </a>{" "}
-                        · Emergency? Call 112
-                    </p>
-                </footer>
+                    {/* Footer */}
+                    <footer className="pt-10 text-xs text-center border-none opacity-50">
+                        <p>
+                            © {new Date().getFullYear()} QuickCure NG ·{" "}
+                            <a href="/legal" className="underline">
+                                Legal
+                            </a>{" "}
+                            · Emergency? Call 112
+                        </p>
+                    </footer>
+                </div>
             </div>
 
             {feedbackTarget && (
@@ -694,7 +622,9 @@ export default function Search() {
                     onClose={() => setFeedbackTarget(null)}
                 />
             )}
-            {leadTarget && (
+            
+            {/* Only show LeadCaptureModal when beauty is enabled */}
+            {FEATURE_FLAGS.BEAUTY_ENABLED && leadTarget && (
                 <LeadCaptureModal
                     hospital={leadTarget}
                     onClose={() => setLeadTarget(null)}
