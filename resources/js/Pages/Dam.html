@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Sabi Hospital — Live Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#080c10;color:#fff;min-height:100vh}
+.topbar{background:#0d1520;border-bottom:1px solid #1e2d3d;padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:40}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:24px;height:24px;background:#E24B4A;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:13px;height:13px;fill:white}
+.logo-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff}
+.logo-badge{font-size:10px;background:rgba(226,75,74,0.2);color:#E24B4A;border-radius:4px;padding:2px 7px;font-weight:600;border:1px solid rgba(226,75,74,0.3)}
+.live-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:#4ade80;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);border-radius:20px;padding:3px 10px;font-weight:600}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.search-trigger{display:flex;align-items:center;gap:8px;background:#131c27;border:1px solid #1e2d3d;border-radius:8px;padding:7px 14px;cursor:pointer;transition:border 0.15s;min-width:210px}
+.search-trigger:hover{border-color:#2e4057}
+.search-trigger svg{width:13px;height:13px;color:#4a6080;flex-shrink:0}
+.search-trigger span{font-size:12px;color:#4a6080;flex:1}
+.search-trigger kbd{font-size:10px;color:#4a6080;background:#0d1520;border:1px solid #1e2d3d;border-radius:4px;padding:1px 6px;font-family:monospace}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.btn-sm{font-size:11px;padding:5px 13px;border-radius:8px;border:1px solid #1e2d3d;background:transparent;color:#94a3b8;cursor:pointer;transition:background 0.1s}
+.btn-sm:hover{background:#131c27;color:#fff}
+.btn-primary{background:#E24B4A;color:white;border:none;font-size:11px;padding:6px 16px;border-radius:8px;cursor:pointer;font-weight:600;font-family:'DM Sans',sans-serif;transition:background 0.1s}
+.btn-primary:hover{background:#c73736}
+.layout{display:flex;min-height:calc(100vh - 54px)}
+.sidebar{width:190px;flex-shrink:0;background:#0d1520;border-right:1px solid #1e2d3d;padding:14px 0;display:flex;flex-direction:column}
+.nav-section{font-size:10px;color:#2e4057;padding:12px 18px 5px;text-transform:uppercase;letter-spacing:0.06em;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 18px;font-size:12px;color:#64748b;cursor:pointer;border-left:2px solid transparent;transition:all 0.1s}
+.nav-item:hover{background:#131c27;color:#cbd5e1}
+.nav-item.active{background:rgba(226,75,74,0.08);color:#E24B4A;border-left-color:#E24B4A;font-weight:500}
+.nav-item svg{width:14px;height:14px;flex-shrink:0}
+.main{flex:1;padding:22px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;min-width:0}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.metric{background:#0d1520;border:1px solid #1e2d3d;border-radius:10px;padding:14px 16px}
+.metric-label{font-size:11px;color:#4a6080;margin-bottom:5px}
+.metric-val{font-size:24px;font-weight:500;color:#fff;line-height:1}
+.metric-sub{font-size:10px;color:#4a6080;margin-top:4px}
+.metric-up{color:#4ade80}
+.card{background:#0d1520;border:1px solid #1e2d3d;border-radius:12px;padding:18px 20px}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:13px;font-weight:500;color:#fff}
+.stock-table{width:100%;border-collapse:collapse}
+.stock-table th{font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:#2e4057;padding:0 0 10px;text-align:left;border-bottom:1px solid #1e2d3d;font-weight:600}
+.stock-row{border-bottom:1px solid #1e2d3d;transition:background 0.15s}
+.stock-row:last-child{border-bottom:none}
+.stock-row.highlighted{background:rgba(226,75,74,0.07);border-left:2px solid #E24B4A}
+.stock-row td{padding:10px 0;vertical-align:middle}
+.svc-name{font-size:13px;color:#e2e8f0;font-weight:500}
+.svc-cat-label{font-size:10px;color:#4a6080;margin-top:2px}
+.avail-toggle{display:flex;border:1px solid #1e2d3d;border-radius:7px;overflow:hidden;width:fit-content;float:right}
+.tog{font-size:10px;padding:5px 11px;cursor:pointer;color:#64748b;background:transparent;border:none;font-family:'DM Sans',sans-serif;transition:all 0.1s}
+.tog.yes{background:rgba(74,222,128,0.1);color:#4ade80;font-weight:600}
+.tog.no{background:rgba(226,75,74,0.1);color:#E24B4A;font-weight:600}
+.last-upd{font-size:10px;color:#2e4057}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.share-box{background:#080c10;border:1px solid #1e2d3d;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.share-url{font-size:12px;color:#64748b;flex:1;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.copy-btn{font-size:11px;padding:5px 12px;border-radius:7px;border:1px solid #1e2d3d;background:#131c27;color:#94a3b8;cursor:pointer;flex-shrink:0;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:background 0.1s}
+.copy-btn:hover{background:#1e2d3d;color:#fff}
+.activity-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #1e2d3d}
+.activity-row:last-child{border-bottom:none}
+.act-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.act-text{font-size:12px;color:#94a3b8;flex:1}
+.act-time{font-size:10px;color:#2e4057}
+.search-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;align-items:flex-start;justify-content:center;padding-top:80px}
+.search-overlay.open{display:flex}
+.search-modal{background:#0d1520;border:1px solid #2e4057;border-radius:12px;width:100%;max-width:440px;overflow:hidden}
+.search-input-row{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid #1e2d3d}
+.search-input-row svg{width:15px;height:15px;color:#4a6080;flex-shrink:0}
+.search-input-row input{flex:1;border:none;outline:none;font-size:14px;background:transparent;color:#fff;font-family:'DM Sans',sans-serif}
+.search-input-row input::placeholder{color:#2e4057}
+.s-result{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-radius:8px;cursor:pointer;margin:4px;transition:background 0.1s}
+.s-result:hover,.s-result.active{background:#131c27}
+.s-result-name{font-size:13px;color:#e2e8f0}
+.s-result-cat{font-size:11px;color:#4a6080}
+.s-hints{display:flex;gap:14px;padding:10px 18px;border-top:1px solid #1e2d3d}
+.s-hints span{font-size:11px;color:#2e4057}
+.s-hints kbd{font-family:monospace;font-size:10px;background:#080c10;border:1px solid #1e2d3d;border-radius:3px;padding:1px 5px;color:#4a6080}
+.toast{position:fixed;bottom:20px;right:20px;background:#0d1520;border:1px solid #1e2d3d;border-radius:8px;padding:10px 18px;font-size:12px;color:#e2e8f0;display:none;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon"><svg viewBox="0 0 12 12"><path d="M5 1h2v4h4v2H7v4H5V7H1V5h4z"/></svg></div>
+    <span class="logo-name">Sabi Hospital</span>
+    <span class="logo-badge">NG</span>
+    <div class="live-pill"><div class="live-dot"></div>Live</div>
+  </div>
+  <div class="search-trigger" id="searchTrigger">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l2.5 2.5"/></svg>
+    <span>Search services...</span>
+    <kbd>⌘K</kbd>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-sm">Settings</button>
+    <button class="btn-primary" onclick="toast('Opening WhatsApp update bot...')">Update via WhatsApp</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+      Overview
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M3 8h10M3 12h6"/></svg>
+      Stock & Services
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2v4l3 3"/></svg>
+      Activity log
+    </div>
+    <div class="nav-section">Public</div>
+    <div class="nav-item">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2a10 10 0 010 12M2 8h12"/></svg>
+      My listing
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12V7m4 5V4m4 8V9"/></svg>
+      Analytics
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Profile views today</div>
+        <div class="metric-val">47</div>
+        <div class="metric-sub metric-up">+12 from yesterday</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Searches found you</div>
+        <div class="metric-val">213</div>
+        <div class="metric-sub">this week</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Services listed</div>
+        <div class="metric-val">7</div>
+        <div class="metric-sub">across 4 categories</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Last stock update</div>
+        <div class="metric-val" style="font-size:16px;padding-top:5px">2h ago</div>
+        <div class="metric-sub">via WhatsApp bot</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-hdr">
+        <span class="section-title">Stock & service status</span>
+        <button class="btn-sm" onclick="toast('All changes saved')">Save all changes</button>
+      </div>
+      <table class="stock-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Category</th>
+            <th>Last updated</th>
+            <th style="text-align:right">Availability</th>
+          </tr>
+        </thead>
+        <tbody id="stockBody"></tbody>
+      </table>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="section-hdr"><span class="section-title">Your public listing link</span></div>
+        <div class="share-box">
+          <span class="share-url">sabihospital.ng/h/st-nicholas-lagos</span>
+          <button class="copy-btn" onclick="toast('Link copied to clipboard')">Copy link</button>
+        </div>
+        <p style="font-size:11px;color:#4a6080;line-height:1.6">Share this on your website, Google profile, and social pages so patients can check your availability before arriving.</p>
+      </div>
+      <div class="card">
+        <div class="section-hdr"><span class="section-title">Recent activity</span></div>
+        <div class="activity-row"><div class="act-dot" style="background:#E24B4A"></div><span class="act-text">Blood bank A+ marked out of stock</span><span class="act-time">2h ago</span></div>
+        <div class="activity-row"><div class="act-dot" style="background:#4ade80"></div><span class="act-text">ICU Bed updated to available</span><span class="act-time">5h ago</span></div>
+        <div class="activity-row"><div class="act-dot" style="background:#4ade80"></div><span class="act-text">Oxygen cylinders restocked</span><span class="act-time">Yesterday</span></div>
+        <div class="activity-row"><div class="act-dot" style="background:#EF9F27"></div><span class="act-text">Profile viewed 47 times today</span><span class="act-time">Today</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-modal">
+    <div class="search-input-row">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l2.5 2.5"/></svg>
+      <input type="text" id="searchInput" placeholder="Search your services..." autocomplete="off"/>
+    </div>
+    <div id="searchResults" style="padding:4px;max-height:260px;overflow-y:auto"></div>
+    <div class="s-hints">
+      <span><kbd>↑↓</kbd> navigate</span>
+      <span><kbd>Enter</kbd> jump to</span>
+      <span><kbd>Esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+const SERVICES=[
+  {id:'s1',name:'Oxygen cylinders',cat:'Respiratory',avail:true,upd:'2h ago'},
+  {id:'s2',name:'ICU Bed',cat:'Critical care',avail:true,upd:'5h ago'},
+  {id:'s3',name:'Blood bank — A+',cat:'Blood bank',avail:false,upd:'2h ago'},
+  {id:'s4',name:'Anti-venom',cat:'Emergency',avail:true,upd:'Yesterday'},
+  {id:'s5',name:'Theatre — Surgery',cat:'Surgery',avail:true,upd:'3 days ago'},
+  {id:'s6',name:'Ventilator',cat:'Respiratory',avail:false,upd:'Yesterday'},
+  {id:'s7',name:'Maternity ward',cat:'Maternity',avail:true,upd:'1h ago'},
+];
+
+let state=SERVICES.map(s=>({...s}));
+let activeIdx=-1,filtered=[];
+
+function toast(msg){
+  const el=document.getElementById('toastEl');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+function renderTable(hlId=null){
+  document.getElementById('stockBody').innerHTML=state.map(s=>`
+    <tr class="stock-row${s.id===hlId?' highlighted':''}" id="row-${s.id}">
+      <td><div class="svc-name">${s.name}</div><div class="svc-cat-label">${s.cat}</div></td>
+      <td><span style="font-size:11px;color:#4a6080">${s.cat}</span></td>
+      <td><span class="last-upd">${s.upd}</span></td>
+      <td>
+        <div class="avail-toggle">
+          <button class="tog${s.avail?' yes':''}" onclick="setAvail('${s.id}',true)">Available</button>
+          <button class="tog${!s.avail?' no':''}" onclick="setAvail('${s.id}',false)">Out of stock</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  if(hlId){setTimeout(()=>{const r=document.getElementById('row-'+hlId);if(r)r.classList.remove('highlighted');},2500);}
+}
+
+function setAvail(id,val){
+  state=state.map(s=>s.id===id?{...s,avail:val,upd:'Just now'}:s);
+  renderTable();
+}
+
+const overlay=document.getElementById('searchOverlay');
+const input=document.getElementById('searchInput');
+const resultsList=document.getElementById('searchResults');
+
+function openSearch(){overlay.classList.add('open');setTimeout(()=>input.focus(),40);renderResults('');}
+function closeSearch(){overlay.classList.remove('open');input.value='';}
+
+function renderResults(q){
+  const query=q.toLowerCase().trim();
+  filtered=query?state.filter(s=>s.name.toLowerCase().includes(query)||s.cat.toLowerCase().includes(query)):state;
+  activeIdx=-1;
+  resultsList.innerHTML=filtered.length===0
+    ?'<div style="padding:14px;font-size:13px;color:#4a6080">No services found</div>'
+    :filtered.map((s,i)=>`
+      <div class="s-result" data-i="${i}" data-id="${s.id}">
+        <span class="s-result-name">${s.name}</span>
+        <span class="s-result-cat">${s.cat}</span>
+      </div>`).join('');
+  resultsList.querySelectorAll('.s-result').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const id=el.dataset.id;closeSearch();renderTable(id);
+      setTimeout(()=>{const r=document.getElementById('row-'+id);if(r)r.scrollIntoView({behavior:'smooth',block:'center'});},50);
+    });
+  });
+}
+
+function setActive(i){
+  const items=resultsList.querySelectorAll('.s-result');
+  items.forEach(el=>el.classList.remove('active'));
+  if(i>=0&&i<items.length){items[i].classList.add('active');activeIdx=i;}
+}
+
+input.addEventListener('input',e=>renderResults(e.target.value));
+input.addEventListener('keydown',e=>{
+  const items=resultsList.querySelectorAll('.s-result');
+  if(e.key==='ArrowDown'){e.preventDefault();setActive(Math.min(activeIdx+1,items.length-1));}
+  else if(e.key==='ArrowUp'){e.preventDefault();setActive(Math.max(activeIdx-1,0));}
+  else if(e.key==='Enter'&&activeIdx>=0){
+    const id=filtered[activeIdx]?.id;
+    if(id){closeSearch();renderTable(id);setTimeout(()=>{const r=document.getElementById('row-'+id);if(r)r.scrollIntoView({behavior:'smooth',block:'center'});},50);}
+  }
+  else if(e.key==='Escape')closeSearch();
+});
+
+document.getElementById('searchTrigger').addEventListener('click',openSearch);
+overlay.addEventListener('click',e=>{if(e.target===overlay)closeSearch();});
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openSearch();}
+  if(e.key==='Escape'&&overlay.classList.contains('open'))closeSearch();
+});
+
+renderTable();
+</script>
+</body>
+</html>
